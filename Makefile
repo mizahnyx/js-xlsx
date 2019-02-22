@@ -39,7 +39,7 @@ init:
 .PHONY: test mocha
 test mocha: test.js
 	mkdir -p tmp
-	mocha -R spec -t 20000
+	npx mocha -R spec -t 20000
 
 .PHONY: prof
 prof:
@@ -54,9 +54,9 @@ $(TESTFMT): test_%:
 
 .PHONY: lint
 lint: $(TARGET)
-	jshint --show-non-errors $(TARGET) $(AUXTARGETS)
-	jshint --show-non-errors package.json bower.json
-	jscs $(TARGET) $(AUXTARGETS)
+	npx jshint --show-non-errors $(TARGET) $(AUXTARGETS)
+	npx jshint --show-non-errors package.json bower.json
+	npx jscs $(TARGET) $(AUXTARGETS)
 
 .PHONY: test-osx
 test-osx:
@@ -75,11 +75,11 @@ $(COVFMT): cov_%:
 	FMTS=$* make cov
 
 misc/coverage.html: $(TARGET) test.js
-	mocha --require blanket -R html-cov > $@
+	npx mocha --require blanket -R html-cov > $@
 
 .PHONY: coveralls coveralls-spin
 coveralls:
-	mocha --require blanket --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js
+	npx mocha --require blanket --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js
 
 coveralls-spin:
 	make coveralls & bash misc/spin.sh $$!
@@ -91,12 +91,9 @@ bower.json: misc/_bower.json package.json
 dist: dist-deps $(TARGET) bower.json
 	cp $(TARGET) dist/
 	cp LICENSE dist/
-	uglifyjs $(TARGET) -o dist/$(LIB).min.js --source-map dist/$(LIB).min.map --preamble "$$(head -n 1 bits/00_header.js)"
-	misc/strip_sourcemap.sh dist/$(LIB).min.js
-	uglifyjs $(REQS) $(TARGET) -o dist/$(LIB).core.min.js --source-map dist/$(LIB).core.min.map --preamble "$$(head -n 1 bits/00_header.js)"
-	misc/strip_sourcemap.sh dist/$(LIB).core.min.js
-	uglifyjs $(REQS) $(ADDONS) $(TARGET) -o dist/$(LIB).full.min.js --source-map dist/$(LIB).full.min.map --preamble "$$(head -n 1 bits/00_header.js)"
-	misc/strip_sourcemap.sh dist/$(LIB).full.min.js
+	npx uglifyjs $(TARGET) -o dist/$(LIB).min.js --source-map --preamble "$$(head -n 1 bits/00_header.js)"
+	npx uglifyjs $(REQS) $(TARGET) -o dist/$(LIB).core.min.js --source-map --preamble "$$(head -n 1 bits/00_header.js)"
+	npx uglifyjs $(REQS) $(ADDONS) $(TARGET) -o dist/$(LIB).full.min.js --source-map --preamble "$$(head -n 1 bits/00_header.js)"
 
 .PHONY: aux
 aux: $(AUXTARGETS)
